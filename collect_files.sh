@@ -1,12 +1,22 @@
 #!/bin/bash
+
+if [ "$#" -ne 2 ]; then
+  echo "Usage: $0 /path/to/input_dir /path/to/output_dir"
+  exit 1
+
 INPUT_DIR="$1"
 OUTPUT_DIR="$2"
+
+if [ ! -d "$INPUT_DIR" ]; then
+  echo "Input directory does not exist: $INPUT_DIR"
+  exit 1
+fi
 
 mkdir -p "$OUTPUT_DIR"
 
 TMPFILE=$(mktemp)
 
-python3 - <<SOS
+python3 - <<END
 import os
 import shutil
 from collections import defaultdict
@@ -29,6 +39,6 @@ for filepath in files:
         out_name = f"{name}{name_count[filename]}{ext}"
     out_path = os.path.join(output_dir, out_name)
     shutil.copy2(filepath, out_path)
-SOS
+END
 
 rm "$TMPFILE"
