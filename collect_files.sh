@@ -4,15 +4,15 @@ if [ "$#" -ne 2 ]; then
   echo "Usage: $0 /path/to/input_dir /path/to/output_dir"
   exit 1
 
-INPUT_DIR="$1"
-OUTPUT_DIR="$2"
+input_dir="$1"
+output_dir="$2"
 
-if [ ! -d "$INPUT_DIR" ]; then
-  echo "Input directory does not exist: $INPUT_DIR"
+if [ ! -d "$input_dir" ]; then
+  echo "Input directory does not exist: $input_dir"
   exit 1
 fi
 
-mkdir -p "$OUTPUT_DIR"
+mkdir -p "$output_dir"
 
 TMPFILE=$(mktemp)
 
@@ -21,8 +21,8 @@ import os
 import shutil
 from collections import defaultdict
 
-input_dir = os.path.abspath("$INPUT_DIR")
-output_dir = os.path.abspath("$OUTPUT_DIR")
+input_dir = os.path.abspath("$input_dir")
+output_dir = os.path.abspath("$output_dir")
 
 with open("$TMPFILE", "r") as f:
     files = [line.strip() for line in f if line.strip()]
