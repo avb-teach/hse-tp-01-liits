@@ -1,33 +1,34 @@
 #!/bin/bash
-input_dir="$1"
-output_dir="$2"
-mkdir -p "$output_dir
+INPUT_DIR="$1"
+OUTPUT_DIR="$2"
+
+mkdir -p "$OUTPUT_DIR"
+
+TMPFILE=$(mktemp)
 
 python3 - <<SOS
 import os
 import shutil
+from collections import defaultdict
 
-input_dir = "${input_dir}"
-output_dir = "${output_dir}"
+input_dir = os.path.abspath("$INPUT_DIR")
+output_dir = os.path.abspath("$OUTPUT_DIR")
 
-if not os.path.exists(output_dir):
-    os.makedirs(output_dir)
+with open("$TMPFILE", "r") as f:
+    files = [line.strip() for line in f if line.strip()]
 
-name_count = {}
-for root, dirs, files in os.walk(input_dir):
-    for file in files:
-        src_path = os.path.join(root, file)
-        base, ext = os.path.splitext(file)
-        out_name = file
-        if out_name in name_count:
-            name_count[out_name] += 1
-            out_name = f"{base}{name_count[file]}{ext}"
-        else:
-            name_count[out_name] = 1
-        dst_path = os.path.join(output_dir, out_name)
-        while os.path.exists(dst_path):
-            name_count[file] += 1
-            out_name = f"{base}{name_count[file]}{ext}"
-            dst_path = os.path.join(output_dir, out_name)
-        shutil.copy2(src_path, dst_path)
+name_count = defaultdict(int)
+
+for filepath in files:
+    filename = os.path.basename(filepath)
+    name_count[filename] += 1
+    if name_count[filename] == 1:
+        out_name = filename
+    else:
+        name, ext = os.path.splitext(filename)
+        out_name = f"{name}{name_count[filename]}{ext}"
+    out_path = os.path.join(output_dir, out_name)
+    shutil.copy2(filepath, out_path)
 SOS
+
+rm "$TMPFILE"
